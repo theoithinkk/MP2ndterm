@@ -87,8 +87,8 @@ void printEAF(EnrollmentSystem *system, char studentID[]);
 void viewAvailableCourses(EnrollmentSystem *system);
 
 // faculty functions
-//void facultyMenu(EnrollmentSystem *system);
-//void facultyLogin(EnrollmentSystem *system);
+void facultyMenu(EnrollmentSystem *system);
+void facultyLogin(EnrollmentSystem *system);
 //void enterFacultyInfo(EnrollmentSystem *system);
 //void selectCourseLoad(EnrollmentSystem *system, char facultyID[]);
 //void editFacultyLoad(EnrollmentSystem *system, char facultyID[]);
@@ -122,7 +122,7 @@ void MainMenu();
 }
 
 /* studentMenu displays the menu for students and processes the different options
-   @param system - pointer to the EnrollmentSystem structure
+   @param system - pointer to the EnrollmentSystem struct
    @return void
    Pre-condition: system must be initialized and contain valid student records
                   The student must provide a valid ID to access the menu
@@ -174,7 +174,7 @@ void studentMenu(EnrollmentSystem *system);
 }
 
 /* studentLogin verifies if the given student ID exists in the system
-   @param system - pointer to the EnrollmentSystem structure
+   @param system - pointer to the EnrollmentSystem struct
    @param studentID - array to store the entered student ID
    @return index of the student if found, otherwise -1
    Pre-condition: system->students contains valid student records
@@ -192,8 +192,8 @@ int studentLogin(EnrollmentSystem *system, Student *student) {
 }
 
 /* enrollCourses allows a student to enroll in available courses
-   @param system - pointer to the EnrollmentSystem structure
-   @param student - pointer to the Student structure
+   @param system - pointer to the EnrollmentSystem struct
+   @param student - pointer to the Student struct
    @return void
    Pre-condition: Student must be valid and have available enrollment slots
 */
@@ -279,11 +279,11 @@ void enrollCourses(EnrollmentSystem *system, Student *student)
     }
 }
 
-/* viewAvailableCourses displays all available courses for the current term.
-   @param system - pointer to the EnrollmentSystem structure.
+/* viewAvailableCourses displays all available courses for the current term
+   @param system - pointer to the EnrollmentSystem struct
    @return void
-   Pre-condition: system must be initialized with valid course records.
-   Post-condition: Available courses are printed in a structured format.
+   Pre-condition: system must be initialized with valid course records
+   Post-condition: Available courses are printed in a structured format
 */
 void viewAvailableCourses(EnrollmentSystem system) 
 {
@@ -312,12 +312,12 @@ void viewAvailableCourses(EnrollmentSystem system)
     }
 }
 
-/* editEnrolledCourses allows a student to modify an enrolled course's section.
-   @param system - pointer to the EnrollmentSystem structure.
-   @param student - pointer to the Student structure (modifies original data).
+/* editEnrolledCourses allows a student to modify an enrolled course's section
+   @param system - pointer to the EnrollmentSystem struct
+   @param student - pointer to the Student struct
    @return void
-   Pre-condition: Student must have at least one enrolled course.
-   Post-condition: The selected course's section is updated if valid.
+   Pre-condition: Student must have at least one enrolled course
+   Post-condition: The selected course's section is updated if valid
 */
 void editEnrolledCourses(EnrollmentSystem *system, Student *student) {
     int i, j, found; //initializes variables to be used
@@ -445,5 +445,84 @@ void deleteEnrolledCourse(EnrollmentSystem *system, Student *student) {
     }
 }
 
+/* facultyMenu provides an interface for faculty members to manage their course load
+   @param system - pointer to the EnrollmentSystem struct
+   @return void
+   Pre-condition: system must be initialized with valid faculty records
+*/
+void facultyMenu(EnrollmentSystem *system) 
+{
+    char facultyID[10]; //initializes facultyID to be inputted
+    int index, choice, flag = 1;//index is index of faculty member with the faculty ID
 
+    index = facultyLogin(system, facultyID); //finds index of faculty member w faculty ID, otherwise -1
+    if (index != -1) flag = 0;//if not found dont go through the loop
 
+    while (flag) 
+	{
+        printf("\n========== Faculty Menu ==========\n");
+        printf("1. View Teaching Load\n");
+        printf("2. Edit Teaching Load\n");
+        printf("3. Remove a Course from Teaching Load\n");
+        printf("4. Print Teaching Load\n");
+        printf("5. View Students Enrolled in a Course\n");
+        printf("6. Exit to Main Menu\n");
+        printf("===================================\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) //functions not yet done
+		{
+            case 1:
+                printFacultyLoad(system, &system->faculties[index]);
+                break;
+            case 2:
+                editFacultyLoad(system, &system->faculties[index]);
+                break;
+            case 3:
+                deleteFacultyLoad(system, &system->faculties[index]);
+                break;
+            case 4:
+                printFacultyLoad(system, &system->faculties[index]);
+                break;
+            case 5:
+                printStudentsPerSubject(system, &system->faculties[index]);
+                break;
+            case 6:
+                flag = 0;
+                break;
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    }
+}
+
+/* facultyLogin check if the given faculty ID exists in the system
+   @param system - pointer to the EnrollmentSystem struct
+   @param facultyID - array to store the entered faculty ID
+   @return index of the faculty if found, otherwise -1
+   Pre-condition: system->faculties must contain valid faculty records
+*/
+int facultyLogin(EnrollmentSystem *system, char facultyID[]) 
+
+{
+    int i, index = -1;
+
+    printf("\nEnter Faculty ID: ");
+    scanf("%s", facultyID);
+
+    for (i = 0; i < system->facultyCount && index == -1; i++) 
+	{
+        if (strcmp(system->faculties[i].id, facultyID) == 0) 
+		{
+            index = i;
+        }
+    }
+
+    if (index == -1) 
+	{
+        printf("Error: Faculty ID not found.\n");
+    }
+
+    return index;
+}
