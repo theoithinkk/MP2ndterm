@@ -78,23 +78,22 @@ void SaveData(EnrollmentSystem *system);
 // if commented, not yet done
 // student functions
 void studentMenu(EnrollmentSystem *system);
-void studentLogin(EnrollmentSystem *system);
+int studentLogin(EnrollmentSystem *system, char studentID[]);
 void enrollCourses(EnrollmentSystem *system, Student *student);
 void viewAvailableCourses(EnrollmentSystem system);
 void editEnrolledCourses(EnrollmentSystem *system, Student *student);
-void deleteEnrolledCourse(EnrollmentSystem *system, char studentID[]);
-void printEAF(EnrollmentSystem *system, char studentID[]);
+void deleteEnrolledCourse(EnrollmentSystem *system, Student *student);
+void printEAF(EnrollmentSystem *system, Student *student);
 void viewAvailableCourses(EnrollmentSystem *system);
 
 // faculty functions
 void facultyMenu(EnrollmentSystem *system);
 void facultyLogin(EnrollmentSystem *system);
-//void enterFacultyInfo(EnrollmentSystem *system);
-//void selectCourseLoad(EnrollmentSystem *system, char facultyID[]);
-//void editFacultyLoad(EnrollmentSystem *system, char facultyID[]);
-//void deleteFacultyLoad(EnrollmentSystem *system, char facultyID[]);
-//void printFacultyLoad(EnrollmentSystem *system, char facultyID[]);
-//void printStudentsPerSubject(EnrollmentSystem *system, char facultyID[]);
+//void enterFacultyDeload(EnrollmentSystem *system, Faculty *faculty);
+//void selectCourseLoad(EnrollmentSystem *system, Faculty *faculty);
+//void deleteFacultyLoad(EnrollmentSystem *system, Faculty *faculty);
+//void printFacultyLoad(EnrollmentSystem *system, Faculty *faculty);
+//void printStudentsPerSubject(EnrollmentSystem *system, Faculty *faculty);
 
 // academic assistant functions
 //void academicAssistantMenu(EnrollmentSystem *system);
@@ -110,7 +109,7 @@ void facultyLogin(EnrollmentSystem *system);
 /* MainMenu displays the main menu
    Pre-condition: N/A
 */
-void MainMenu();
+void MainMenu()
 {
     printf("\n========== Enrollment System ==========\n");
     printf("1. Student\n");
@@ -127,7 +126,7 @@ void MainMenu();
    Pre-condition: system must be initialized and contain valid student records
                   The student must provide a valid ID to access the menu
 */
-void studentMenu(EnrollmentSystem *system);
+void studentMenu(EnrollmentSystem *system)
 {
 	char studentID[10]; //initializes studentID for input
     int choice, index = -1; //initializes choice for input, initializes index to be -1 (because index can be 0)
@@ -179,7 +178,7 @@ void studentMenu(EnrollmentSystem *system);
    @return index of the student if found, otherwise -1
    Pre-condition: system->students contains valid student records
 */
-int studentLogin(EnrollmentSystem *system, Student *student) {
+int studentLogin(EnrollmentSystem *system, char studentID[]) {
     
     for (int i = 0; i < system->studentCount; i++) { //iterates through system to find id number
         if (strcmp(system->students[i].id, studentID) == 0) {
@@ -233,9 +232,9 @@ void enrollCourses(EnrollmentSystem *system, Student *student)
             found = 0;
             prereqMet = 1; // initializes prereqmet to be true for now
 
-            for (i = 0; i < system.courseCount; i++) 
+            for (i = 0; i < system->courseCount; i++) 
 			{
-                if (strcmp(system.courses[i].code, courseCode) == 0 && strcmp(system.courses[i].section, section) == 0) 
+                if (strcmp(system->courses[i].code, courseCode) == 0 && strcmp(system-->courses[i].section, section) == 0) 
 				{
                     found = 1;
                     prereqMet = (strlen(system->courses[i].prerequisite) == 0); //checks if the course has no prerequisite
@@ -250,7 +249,7 @@ void enrollCourses(EnrollmentSystem *system, Student *student)
 
                     if (!prereqMet) //if prereq isnt met, add to denied courses
 					{
-                        deniedCourses[deniedCount++] = system.courses[i];
+                        deniedCourses[deniedCount++] = system->courses[i];
                     } 
 					else //else, enroll student in the course
 					{ 
@@ -445,6 +444,49 @@ void deleteEnrolledCourse(EnrollmentSystem *system, Student *student) {
     }
 }
 
+/* printEAF displays the student's Enrollment Assessment Form (EAF)
+   @param system - pointer to the EnrollmentSystem struct
+   @param student - pointer to the Student struct
+   @return void
+   Pre-condition: Student must be valid and have existing records
+
+*/
+void printEAF(EnrollmentSystem *system, Student *student) { //uses student so it doesnt have to look if its a
+    int i, totalUnits = 0;
+
+    if (student->enrolledCount == 0) {
+        printf("\nEnrollment Assessment Form\n");
+        printf("Student Name: %s\n", student->name);
+        printf("Student ID: %s\n", student->id);
+        printf("No enrolled courses found.\n");
+        return;
+    }
+
+    printf("\n============================================\n");
+    printf("           Enrollment Assessment Form        \n");
+    printf("============================================\n");
+    printf("Student Name: %s\n", student->name);
+    printf("Student ID: %s\n\n", student->id);
+    printf("%-10s %-8s %-5s %-5s %-10s %-8s\n", "Course", "Section", "Units", "Day", "Time", "Room");
+    printf("---------------------------------------------------------------\n");
+
+    // Print enrolled courses
+    for (i = 0; i < student->enrolledCount; i++) {
+        printf("%-10s %-8s %-5d %-5s %-10s %-8s\n",
+               student->enrolledCourses[i].code,
+               student->enrolledCourses[i].section,
+               student->enrolledCourses[i].units,
+               student->enrolledCourses[i].day,
+               student->enrolledCourses[i].time,
+               student->enrolledCourses[i].room);
+
+        totalUnits += student->enrolledCourses[i].units;
+    }
+
+    printf("---------------------------------------------------------------\n");
+    printf("Total Units Enrolled: %d\n", totalUnits);
+}
+
 /* facultyMenu provides an interface for faculty members to manage their course load
    @param system - pointer to the EnrollmentSystem struct
    @return void
@@ -456,7 +498,7 @@ void facultyMenu(EnrollmentSystem *system)
     int index, choice, flag = 1;//index is index of faculty member with the faculty ID
 
     index = facultyLogin(system, facultyID); //finds index of faculty member w faculty ID, otherwise -1
-    if (index != -1) flag = 0;//if not found dont go through the loop
+    if (index == -1) flag = 0;//if not found dont go through the loop
 
     while (flag) 
 	{
@@ -474,10 +516,10 @@ void facultyMenu(EnrollmentSystem *system)
         switch (choice) //functions not yet done
 		{
             case 1:
-                printFacultyLoad(system, &system->faculties[index]);
+                enterFacultyDeload(system, &system->faculties[index]);
                 break;
             case 2:
-                editFacultyLoad(system, &system->faculties[index]);
+                selectCourseLoad(system, &system->faculties[index]);
                 break;
             case 3:
                 deleteFacultyLoad(system, &system->faculties[index]);
@@ -525,4 +567,89 @@ int facultyLogin(EnrollmentSystem *system, char facultyID[])
     }
 
     return index;
+}
+
+/* selectCourseLoad allows a faculty member to assign courses to their teaching load
+   @param system - pointer to the EnrollmentSystem struct
+   @param faculty - pointer to the Faculty struct
+   @return void
+   Pre-condition: Faculty must exist in the system
+*/
+void selectCourseLoad(EnrollmentSystem *system, Faculty *faculty) {
+    int i, found;
+    char courseCode[10], section[5];
+    int totalUnits = 0; // tracks assigned units
+
+    for (i = 0; i < faculty->courseCount; i++) //calculates total units
+	{ 
+        totalUnits += faculty->teachingLoad[i].units;
+    }
+
+    printf("\nHere are the available courses:\n\n");
+    printf("%-10s %-8s %-5s %-5s %-10s %-8s\n", "Course", "Section", "Units", "Day", "Time", "Room");
+    printf("---------------------------------------------------------------\n");
+
+    for (i = 0; i < system->courseCount; i++) 
+	{
+        printf("%-10s %-8s %-5d %-5s %-10s %-8s\n",
+               system->courses[i].code,
+               system->courses[i].section,
+               system->courses[i].units,
+               system->courses[i].day,
+               system->courses[i].time,
+               system->courses[i].room);
+    }
+
+    printf("\nEnter your preferred courses and section (Type EXIT to stop the entry)\n");
+
+	int flag = 1;
+	
+    while (flag) 
+	{ 
+        scanf("%s", courseCode);
+        if (strcmp(courseCode, "EXIT") == 0) 
+		{
+            flag = 0;
+        }
+        scanf("%s", section);
+
+        found = 0;
+        for (i = 0; i < system->courseCount; i++) { //finds if there is an existing/valid course and section
+            if (strcmp(system->courses[i].code, courseCode) == 0 && strcmp(system->courses[i].section, section) == 0) 
+				{
+                found = 1;
+
+                int duplicate = 0;
+                for (int j = 0; j < faculty->courseCount; j++) //checks if they already have the course and section
+                {
+                    if (strcmp(faculty->teachingLoad[j].code, courseCode) == 0 && strcmp(faculty->teachingLoad[j].section, section) == 0) 
+					{
+                        duplicate = 1;
+                    }
+                }
+
+                if (duplicate) 
+				{
+                    printf("Error: You are already assigned to %s %s.\n", courseCode, section);
+                    flag = 0;
+                }
+
+                if (totalUnits + system->courses[i].units > faculty->deloadingUnits)//checks if it more than their 
+                {
+                    printf("Error: Cannot add %s %s (exceeds max load of %d units).\n",
+                           courseCode, section, faculty->maxLoad);
+                } 
+				else 
+				{ //if not, add to teaching load courses
+                    faculty->teachingLoad[faculty->courseCount++] = system->courses[i];
+                    totalUnits += system->courses[i].units;
+                    printf("Successfully assigned %s %s.\n", courseCode, section);
+                }
+            }
+        }
+
+        if (!found) { //if course or incorrect section isnt in the system
+            printf("Error: Course not found or incorrect section.\n");
+        }
+    }
 }
