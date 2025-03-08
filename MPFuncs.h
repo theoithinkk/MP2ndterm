@@ -90,9 +90,9 @@ void viewAvailableCourses(EnrollmentSystem *system);
 void facultyMenu(EnrollmentSystem *system);
 void facultyLogin(EnrollmentSystem *system);
 //void enterFacultyDeload(EnrollmentSystem *system, Faculty *faculty);
-//void selectCourseLoad(EnrollmentSystem *system, Faculty *faculty);
+void selectCourseLoad(EnrollmentSystem *system, Faculty *faculty);
 //void deleteFacultyLoad(EnrollmentSystem *system, Faculty *faculty);
-//void printFacultyLoad(EnrollmentSystem *system, Faculty *faculty);
+void printFacultyLoad(EnrollmentSystem *system, Faculty *faculty);
 //void printStudentsPerSubject(EnrollmentSystem *system, Faculty *faculty);
 
 // academic assistant functions
@@ -651,5 +651,42 @@ void selectCourseLoad(EnrollmentSystem *system, Faculty *faculty) {
         if (!found) { //if course or incorrect section isnt in the system
             printf("Error: Course not found or incorrect section.\n");
         }
+    }
+}
+
+/* printFacultyLoad displays the courses a faculty member is assigned to
+   @param system - pointer to the EnrollmentSystem struct
+   @param faculty - pointer to the Faculty struct
+   @return void
+   Pre-condition: Faculty must be valid and have existing records
+*/
+void printFacultyLoad(EnrollmentSystem *system, Faculty *faculty) {
+    int i;
+
+    printf("\n============================================\n");
+    printf("            Faculty Teaching Load           \n");
+    printf("============================================\n");
+    printf("Faculty Name: %s\n", faculty->name);
+    printf("Faculty ID: %s\n\n", faculty->id);
+
+    if (faculty->courseCount == 0) 
+	{
+        printf("No assigned courses.\n");
+        return;
+    }
+
+    printf("%-10s %-8s %-5s %-5s %-10s %-8s\n", 
+           "Course", "Section", "Units", "Day", "Time", "Room");
+    printf("---------------------------------------------------------------\n");
+
+    for (i = 0; i < faculty->courseCount; i++) 
+	{
+        printf("%-10s %-8s %-5d %-5s %-10s %-8s\n",
+               faculty->teachingLoad[i].code,
+               faculty->teachingLoad[i].section,
+               faculty->teachingLoad[i].units,
+               faculty->teachingLoad[i].day,
+               faculty->teachingLoad[i].time,
+               faculty->teachingLoad[i].room);
     }
 }
