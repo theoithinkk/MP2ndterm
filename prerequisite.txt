@@ -1,0 +1,10 @@
+pre-requisite CCPROG2 CCPROG3
+pre-requisite CCPROG3 CCPROG1
+pre-requisite CCPROG3 CCPROG2
+pre-requisite CCDSALG CCPROG2
+pre-requisite CCDSALG CCDSTRU
+pre-requisite CSMATH2 MTH101A
+pre-requisite CSMATH1 MTH101A
+pre-requisite PE2FTEX PE1CRDO
+pre-requisite CCAPDEV CCINFOM
+pre-requisite ST-MATH CSMATH1
