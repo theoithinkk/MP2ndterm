@@ -5,6 +5,7 @@
 #define MAX_STUDENTS 20
 #define MAX_FACULTY 20
 
+typedef char String80[81];
 typedef char String30[31];
 typedef char String10[11];
 typedef char String5[6];
@@ -25,6 +26,7 @@ typedef struct
     String10 room;
     Name facultyName;
 	Name studentList[MAX_STUDENTS];
+	int studentCount;
     String10 prereqCourse[3];
     int prereqCount;
 } Course;
